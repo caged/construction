@@ -1,0 +1,17 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    parallel (1.6.1)
+    ruby-progressbar (1.7.5)
+    smarter_csv (1.1.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  parallel (= 1.6.1)
+  ruby-progressbar (= 1.7.5)
+  smarter_csv (= 1.1.0)
+
+BUNDLED WITH
+   1.10.6
