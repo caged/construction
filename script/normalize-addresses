@@ -27,24 +27,32 @@ out_headers = %w(
   completed
 )
 
-@out_csv = CSV.open(out_file, 'a+', write_headers: true, headers: out_headers)
-@master_addresses = SmarterCSV.process(in_file.dirname + 'address_data.csv', chunk_size: 10000)
+OUT_CSV = CSV.open(out_file, 'w')
+MASTER_ADDRESSES = SmarterCSV.process('data/csv/address_data-small.csv')
 
 def worker(permits, index)
   permits.each_with_index do |permit, index|
-    Parallel.each(@master_addresses, in_processes: 4) do |ma|
-      found = @master_addresses.detect { |ma| permit[:case_address] == ma[:address_full] }
-      if found
-        @out_csv << permit.values
-        raise Parallel::Kill
-      end
-    end
+    found = MASTER_ADDRESSES.detect { |ma| permit[:case_address] == ma[:address_full] }
+     if found
+       puts permit.inspect
+       puts found.inspect
+       OUT_CSV << permit.values.unshift(found[:address_id])
+     end
+    # Parallel.each(@master_addresses, in_processes: 4) do |ma|
+    #   found = ma.detect { |ma| permit[:case_address] == ma[:address_full] }
+    #   if found
+    #     @out_csv << permit.values
+    #     raise Parallel::Kill
+    #   else
+    #     raise Parallel::Break
+    #   end
+    # end
   end
 end
 
 
-permits = SmarterCSV.process(in_file, file_encoding: 'iso-8859-1',  chunk_size: 1000)
-Parallel.each_with_index(permits, in_processes: 4, progress: "Processing") do |chunk, index|
+permits = SmarterCSV.process(in_file, file_encoding: 'iso-8859-1',  chunk_size: 1000, quote_char: '"')
+Parallel.each_with_index(permits, in_threads: 8, progress: "Processing") do |chunk, index|
   worker(chunk, index)
 end
 
