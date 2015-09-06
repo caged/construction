@@ -43,4 +43,4 @@ data/csv/%.csv:
 	sed -i '' "1s/.*/`head -n 1 $@ | tr A-Z a-z`/" $@
 	csvclean --encoding $(ENCODING) $@
 	mv "$(dir $@)$(notdir $(basename $@))_out.csv" $@
-	sed -i '' 's/ \{1,\}/ /g' $@
+	sed -i '' 's/ \{1,\}/ /g;s/ \{1,\},/,/g' $@
