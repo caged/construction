@@ -1,1 +1,20 @@
 #!/bin/bash
+
+db_name=$1
+data_file='data/csv/permits-with-geo.csv'
+table_name=permits
+oregon_north_srs='2913'
+
+dropdb --if-exists --interactive $db_name
+createdb $db_name
+psql -c 'create extension postgis' $db_name
+
+schema=$(head -n 25  ${data_file} | csvsql -i postgresql --no-constraints --table $table_name)
+psql -c "$schema" $db_name
+
+cat $data_file | psql -c "copy ${table_name} from stdin with csv header delimiter ',' NULL E'' quote '\"'" $db_name
+
+psql -c "alter table ${table_name} add column geom geometry(Point, ${oregon_north_srs})" $db_name
+psql -c "update ${table_name} set geom = ST_SetSRID(ST_MakePoint(x,y), ${oregon_north_srs})" $db_name
+psql -c "create index geom_idx ON ${table_name} using gist(geom)" $db_name
+psql -c "alter table ${table_name} alter column geom type geometry(Point, 4326) using st_transform(geom, 4326)" $db_name
