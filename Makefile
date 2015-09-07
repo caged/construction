@@ -1,5 +1,6 @@
 PERMIT_HEADER_INDEXES='1,2,3,5,6,7,8,9,10,11,12,13,14'
 ENCODING='iso-8859-1'
+FINAL_PERMIT_COLUMNS="permit_case_number,permit_case_type,issue_date,final_date,latest_activity,status,activity_type,activities,must_check,activity_status,last_activity,completed,address_id,zip_code,address_full,x,y"
 
 all:	data/csv/address_data.csv \
 			data/csv/permits.csv \
@@ -22,20 +23,23 @@ data/csv/permits-processed.csv: data/csv/permits.csv
 
 data/csv/permits-with-geo.csv: data/csv/permits-processed.csv data/csv/address_data-processed.csv
 	csvjoin --columns case_address,address_full $< $(word 2,$^) > $@
+	csvcut --encoding $(ENCODING) -c $(FINAL_PERMIT_COLUMNS) $@ > $@.tmp
+	mv $@.tmp $@
 
 data/csv/permits-new-construction.csv: data/csv/permits.csv
 	csvcut --encoding $(ENCODING) -c $(PERMIT_HEADER_INDEXES) $< | csvgrep -c 3 -m "New Construction" > $@
 
 data/csv/business_licenses.csv: data/gz/business_licenses.zip
 
-
+# Download all files
 data/gz/%.zip:
 	mkdir -p $(dir $@)
 	curl --remote-time 'ftp://ftp02.portlandoregon.gov/CivicApps/$(notdir $@)' -o $@.download
 	mv $@.download $@
 
 # Extract CSV, remove all leading header spaces, replace header spaces with _
-# and lowercase all header names.  Finally remove all invalid rows
+# and lowercase all header names.  Collapse multiple whitespace to single space,
+# remove all trailing whitespace before command and finally remove all invalid rows
 data/csv/%.csv:
 	mkdir -p $(dir $@)
 	tar -xzm -C $(dir $@) -f $<
@@ -43,4 +47,4 @@ data/csv/%.csv:
 	sed -i '' "1s/.*/`head -n 1 $@ | tr A-Z a-z`/" $@
 	csvclean --encoding $(ENCODING) $@
 	mv "$(dir $@)$(notdir $(basename $@))_out.csv" $@
-	sed -i '' 's/ \{1,\}/ /g;s/ \{1,\},/,/g' $@
+	sed -i '' 's/ \{1,\}/ /g;s/ \{1,\},/,/g;s/ PORTLAND//g' $@
