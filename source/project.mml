@@ -1,17 +1,17 @@
 
 {
-  "srs": "+proj=laea +lat_0=45 +lon_0=-100 +x_0=0 +y_0=0 +a=6370997 +b=6370997 +units=m +no_defs",
+  "srs": "+proj=lcc +lat_1=46 +lat_2=44.33333333333334 +lat_0=43.66666666666666 +lon_0=-120.5 +x_0=2500000.0001424 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=ft +no_defs",
   "Stylesheet": [ "project.mss" ],
   "Layer": [
     {
       "name": "layer",
-      "srs": "+proj=laea +lat_0=45 +lon_0=-100 +x_0=0 +y_0=0 +a=6370997 +b=6370997 +units=m +no_defs",
+      "srs": "+proj=lcc +lat_1=46 +lat_2=44.33333333333334 +lat_0=43.66666666666666 +lon_0=-120.5 +x_0=2500000.0001424 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=ft +no_defs",
       "Datasource": {
         "type": "postgis",
         "host": "localhost",
-        "dbname": "usgs",
-        "table": "(select st_transform(wkb_geometry, 2163) as wkb_geometry from states) as layer",
-        "extent": "-2031868.7712532,-2117010.64826176,2516402.91905795,732383.818321241"
+        "dbname": "neighborhoods_now",
+        "table": "(select st_transform(geom, 2913) as geom from neighborhoods) as layer",
+        "extent": "7604005.67172703,651319.121719141,7696978.42107089,732246.95160542"
       }
     }
   ]
