@@ -1,5 +1,5 @@
 Map {
-  background-color: #777;
+  background-color: #f1f1f1;
 }
 
 #layer {

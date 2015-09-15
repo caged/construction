@@ -9,9 +9,9 @@
       "Datasource": {
         "type": "postgis",
         "host": "localhost",
-        "dbname": "neighborhoods_now",
-        "table": "(select gid, st_transform(geom, 2163) as geom from neighborhoods) as layer",
-        "extent": "-2031868.7712532,-2117010.64826176,2516402.91905795,732383.818425467"
+        "dbname": "usgs",
+        "table": "(select st_transform(wkb_geometry, 2163) as wkb_geometry from states) as layer",
+        "extent": "-2031868.7712532,-2117010.64826176,2516402.91905795,732383.818321241"
       }
     }
   ]
