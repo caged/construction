@@ -14,52 +14,19 @@ all:	data/csv/address_data.csv \
 data/shp/residential-permits.shp: data/gz/residential-permits.zip
 data/shp/neighborhoods.shp: data/gz/Neighborhoods_pdx.zip
 
-data/json/supermarkets.json: data/shp/neighborhoods.shp script/fetch-and-combine-supermarkets
-	sh script/fetch-and-combine-supermarkets $@ $<
-
-# Download and clean original data.  Unfortunately we have to process this data
-# because some lines are not properly escaped or formatted in the original source.
-data/csv/address_data.csv: data/gz/address.zip
-data/csv/permits.csv: data/gz/permits.zip
-
-# Simplify data, keeping only relevant columns
-data/csv/address_data-processed.csv: data/csv/address_data.csv
-	csvcut --encoding $(ENCODING) \
-		-c address_id,zip_code,address_full,x,y $< > $@
-data/csv/permits-processed.csv: data/csv/permits.csv
-	csvcut --encoding $(ENCODING) -c $(PERMIT_HEADER_INDEXES) $< > $@
-
-data/csv/permits-with-geo.csv: data/csv/permits-processed.csv data/csv/address_data-processed.csv
-	csvjoin --columns case_address,address_full $< $(word 2,$^) > $@
-	csvcut --encoding $(ENCODING) -c $(FINAL_PERMIT_COLUMNS) $@ > $@.tmp
-	mv $@.tmp $@
-
-data/csv/permits-new-construction.csv: data/csv/permits.csv
-	csvcut --encoding $(ENCODING) -c $(PERMIT_HEADER_INDEXES) $< | csvgrep -c 3 -m "New Construction" > $@
-
 data/csv/business_licenses.csv: data/gz/business_licenses.zip
-
-# Download all files
-data/gz/%.zip:
-	mkdir -p $(dir $@)
-	curl --remote-time 'ftp://ftp02.portlandoregon.gov/CivicApps/$(notdir $@)' -o $@.download
-	mv $@.download $@
 
 data/gz/residential-permits.zip:
 	mkdir -p $(dir $@)
 	curl -L --remote-time 'https://www.dropbox.com/s/n2fh9rn9tsdbrh6/residential_permits_pdx_150907.zip?dl=0' -o $@.download
 	mv $@.download $@
-# Extract CSV, remove all leading header spaces, replace header spaces with _
-# and lowercase all header names.  Collapse multiple whitespace to single space,
-# remove all trailing whitespace before command and finally remove all invalid rows
-data/csv/%.csv:
+
+# Download from CivicApps FTP
+data/gz/%.zip:
 	mkdir -p $(dir $@)
-	tar -xzm -C $(dir $@) -f $<
-	sed -i '' '1 s/" /"/g;1 s/ /_/g;' $@
-	sed -i '' "1s/.*/`head -n 1 $@ | tr A-Z a-z`/" $@
-	csvclean --encoding $(ENCODING) $@
-	mv "$(dir $@)$(notdir $(basename $@))_out.csv" $@
-	sed -i '' 's/ \{1,\}/ /g;s/ \{1,\},/,/g;s/ PORTLAND//g' $@
+	curl --remote-time 'ftp://ftp02.portlandoregon.gov/CivicApps/$(notdir $@)' -o $@.download
+	mv $@.download $@
+
 
 ################################################################################
 # SHAPEFILES: META
