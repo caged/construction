@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "carto": "0.15.1",
+    "mapnik": "3.4.6",
+    "minimist": "1.2.0"
+  }
+}
