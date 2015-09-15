@@ -9,6 +9,14 @@ all:	data/csv/address_data.csv \
 
 .SECONDARY:
 
+# Residential construction data provided by Kevin Martin of the City of Portland.
+# See https://github.com/CityofPortland/pdxdata/issues/5
+data/shp/residential-permits.shp: data/gz/residential-permits.zip
+data/shp/neighborhoods.shp: data/gz/Neighborhoods_pdx.zip
+
+data/json/supermarkets.json: data/shp/neighborhoods.shp script/fetch-and-combine-supermarkets
+	sh script/fetch-and-combine-supermarkets $@ $<
+
 # Download and clean original data.  Unfortunately we have to process this data
 # because some lines are not properly escaped or formatted in the original source.
 data/csv/address_data.csv: data/gz/address.zip
@@ -37,6 +45,10 @@ data/gz/%.zip:
 	curl --remote-time 'ftp://ftp02.portlandoregon.gov/CivicApps/$(notdir $@)' -o $@.download
 	mv $@.download $@
 
+data/gz/residential-permits.zip:
+	mkdir -p $(dir $@)
+	curl -L --remote-time 'https://www.dropbox.com/s/n2fh9rn9tsdbrh6/residential_permits_pdx_150907.zip?dl=0' -o $@.download
+	mv $@.download $@
 # Extract CSV, remove all leading header spaces, replace header spaces with _
 # and lowercase all header names.  Collapse multiple whitespace to single space,
 # remove all trailing whitespace before command and finally remove all invalid rows
@@ -48,3 +60,17 @@ data/csv/%.csv:
 	csvclean --encoding $(ENCODING) $@
 	mv "$(dir $@)$(notdir $(basename $@))_out.csv" $@
 	sed -i '' 's/ \{1,\}/ /g;s/ \{1,\},/,/g;s/ PORTLAND//g' $@
+
+################################################################################
+# SHAPEFILES: META
+################################################################################
+data/shp/%.shp:
+	rm -rf $(basename $@)
+	mkdir -p $(basename $@)
+	tar --exclude="._*" -xzm -C $(basename $@) -f $<
+
+	for file in `find $(basename $@) -name '*.shp'`; do \
+		ogr2ogr -dim 2 -t_srs 'EPSG:4326' -f 'ESRI Shapefile' $(basename $@).$${file##*.} $$file; \
+		chmod 644 $(basename $@).$${file##*.}; \
+	done
+	rm -rf $(basename $@)
