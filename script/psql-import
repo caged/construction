@@ -5,10 +5,10 @@ db_name=$1
 make
 
 dropdb --if-exists --interactive $db_name
-createdb $db_name
+createdb --encoding='utf-8' --template=template0 $db_name
 psql -c 'create extension postgis' $db_name
 
-shp2pgsql -t 2D -I -D data/shp/neighborhoods.shp | psql $db_name
-shp2pgsql -t 2D -I -D data/shp/residential-permits.shp residential_permits | psql $db_name
-shp2pgsql -t 2D -I -D data/shp/portland_oregon_osm_polygon.shp osm_polygons | psql $db_name
-shp2pgsql -t 2D -I -D data/shp/portland_oregon_osm_line.shp osm_lines | psql $db_name
+shp2pgsql -s 4326 -t 2D -I -D data/shp/neighborhoods.shp | psql $db_name
+shp2pgsql -s 4326 -t 2D -I -D data/shp/residential-permits.shp residential_permits | psql $db_name
+shp2pgsql -s 4326 -t 2D -I -D data/shp/portland_oregon_osm_polygon.shp osm_polygons | psql $db_name
+shp2pgsql -s 4326 -t 2D -I -D data/shp/portland_oregon_osm_line.shp osm_lines | psql $db_name
