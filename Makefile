@@ -2,9 +2,8 @@ PERMIT_HEADER_INDEXES='1,2,3,5,6,7,8,9,10,11,12,13,14'
 ENCODING='iso-8859-1'
 FINAL_PERMIT_COLUMNS="permit_case_number,permit_case_type,issue_date,final_date,latest_activity,status,activity_type,activities,must_check,activity_status,last_activity,completed,address_id,zip_code,address_full,x,y"
 
-all:	data/csv/address_data.csv \
-			data/csv/permits.csv \
-			data/csv/business_licenses.csv
+all:	data/shp/neighborhoods.shp \
+			data/shp/residential-permits.shp
 
 
 .SECONDARY:
