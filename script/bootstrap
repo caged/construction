@@ -1,8 +1,7 @@
 #!/bin/bash
 
-# This CSV data is a bit unweildy, so we need to install a tool that can handle
-# this mad world.
-pip install csvkit
-
 # Install a few ruby tools in Gemfile
 bundle install
+
+# Install node tools
+npm install

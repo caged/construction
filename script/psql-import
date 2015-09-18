@@ -1,20 +1,15 @@
 #!/bin/bash
 
 db_name=$1
-data_file='data/csv/permits-with-geo.csv'
-table_name=permits
-oregon_north_srs='2913'
+
+make
 
 dropdb --if-exists --interactive $db_name
-createdb $db_name
+createdb --encoding='utf-8' --template=template0 $db_name
 psql -c 'create extension postgis' $db_name
 
-schema=$(head -n 25  ${data_file} | csvsql -i postgresql --no-constraints --table $table_name)
-psql -c "$schema" $db_name
-
-cat $data_file | psql -c "copy ${table_name} from stdin with csv header delimiter ',' NULL E'' quote '\"'" $db_name
-
-psql -c "alter table ${table_name} add column geom geometry(Point, ${oregon_north_srs})" $db_name
-psql -c "update ${table_name} set geom = ST_SetSRID(ST_MakePoint(x,y), ${oregon_north_srs})" $db_name
-psql -c "create index geom_idx ON ${table_name} using gist(geom)" $db_name
-psql -c "alter table ${table_name} alter column geom type geometry(Point, 4326) using st_transform(geom, 4326)" $db_name
+shp2pgsql -s 4326 -t 2D -I -D data/shp/neighborhoods.shp | psql $db_name
+shp2pgsql -s 4326 -t 2D -I -D data/shp/residential-permits.shp residential_permits | psql $db_name
+shp2pgsql -s 4326 -t 2D -I -D data/shp/portland_oregon_osm_polygon.shp osm_polygons | psql $db_name
+shp2pgsql -s 4326 -t 2D -I -D data/shp/portland_oregon_osm_line.shp osm_lines | psql $db_name
+shp2pgsql -s 4326 -t 2D -I -D -W 'LATIN1' data/shp/buildings.shp | psql $db_name

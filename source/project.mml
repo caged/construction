@@ -1,0 +1,40 @@
+
+{
+  "srs": "+proj=lcc +lat_1=46 +lat_2=44.33333333333334 +lat_0=43.66666666666666 +lon_0=-120.5 +x_0=2500000.0001424 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=ft +no_defs",
+  "Stylesheet": [ "project.mss" ],
+  "Layer": [
+    {
+      "name": "streets",
+      "srs": "+proj=lcc +lat_1=46 +lat_2=44.33333333333334 +lat_0=43.66666666666666 +lon_0=-120.5 +x_0=2500000.0001424 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=ft +no_defs",
+      "Datasource": {
+        "type": "postgis",
+        "host": "localhost",
+        "dbname": "neighborhoods_now",
+        "table": "(select st_transform(geom, 2913) as geom from osm_lines where highway is not null) as layer2",
+        "extent": "7604005.67172703,651319.121719141,7696978.42107089,732246.95160542"
+      }
+    },
+    {
+      "name": "neighborhoods",
+      "srs": "+proj=lcc +lat_1=46 +lat_2=44.33333333333334 +lat_0=43.66666666666666 +lon_0=-120.5 +x_0=2500000.0001424 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=ft +no_defs",
+      "Datasource": {
+        "type": "postgis",
+        "host": "localhost",
+        "dbname": "neighborhoods_now",
+        "table": "(select st_transform(geom, 2913) as geom from neighborhoods) as layer",
+        "extent": "7604005.67172703,651319.121719141,7696978.42107089,732246.95160542"
+      }
+    },
+    {
+      "name": "construction",
+      "srs": "+proj=lcc +lat_1=46 +lat_2=44.33333333333334 +lat_0=43.66666666666666 +lon_0=-120.5 +x_0=2500000.0001424 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=ft +no_defs",
+      "Datasource": {
+        "type": "postgis",
+        "host": "localhost",
+        "dbname": "neighborhoods_now",
+        "table": "(select year, newclass, st_transform(geom, 2913) as geom from residential_permits where year >= 2010) as construction",
+        "extent": "7604005.67172703,651319.121719141,7696978.42107089,732246.95160542"
+      }
+    }
+  ]
+}
