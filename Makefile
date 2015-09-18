@@ -4,7 +4,8 @@ FINAL_PERMIT_COLUMNS="permit_case_number,permit_case_type,issue_date,final_date,
 
 all:	data/shp/neighborhoods.shp \
 			data/shp/residential-permits.shp \
-			data/shp/osm.shp
+			data/shp/osm.shp \
+			data/shp/buildings.shp
 
 .SECONDARY:
 
@@ -12,6 +13,7 @@ all:	data/shp/neighborhoods.shp \
 # See https://github.com/CityofPortland/pdxdata/issues/5
 data/shp/residential-permits.shp: data/gz/residential-permits.zip
 data/shp/neighborhoods.shp: data/gz/Neighborhoods_pdx.zip
+data/shp/buildings.shp: data/gz/Building_Footprints_pdx.zip
 data/shp/osm.shp: data/gz/osm/portland_oregon.osm2pgsql-shapefiles.zip
 	rm -rf $(basename $@)
 	mkdir -p $(basename $@)

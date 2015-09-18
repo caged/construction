@@ -12,3 +12,4 @@ shp2pgsql -s 4326 -t 2D -I -D data/shp/neighborhoods.shp | psql $db_name
 shp2pgsql -s 4326 -t 2D -I -D data/shp/residential-permits.shp residential_permits | psql $db_name
 shp2pgsql -s 4326 -t 2D -I -D data/shp/portland_oregon_osm_polygon.shp osm_polygons | psql $db_name
 shp2pgsql -s 4326 -t 2D -I -D data/shp/portland_oregon_osm_line.shp osm_lines | psql $db_name
+shp2pgsql -s 4326 -t 2D -I -D -W 'LATIN1' data/shp/buildings.shp | psql $db_name
